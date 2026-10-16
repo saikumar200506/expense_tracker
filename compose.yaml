@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: ${DOCKER_DB_NAME:-expense_tracker}
+      POSTGRES_USER: ${DOCKER_DB_USER:-expense_tracker}
+      POSTGRES_PASSWORD: ${DOCKER_DB_PASSWORD:-expense_tracker_local}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  api:
+    build: .
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: ${DOCKER_DB_NAME:-expense_tracker}
+      DB_USER: ${DOCKER_DB_USER:-expense_tracker}
+      DB_PASSWORD: ${DOCKER_DB_PASSWORD:-expense_tracker_local}
+    ports:
+      - "127.0.0.1:${DOCKER_API_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).close()"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  postgres_data:
