@@ -464,7 +464,7 @@ Calculation checks covered uneven splits, amounts smaller than the member count,
 
 Docker verification covered the image build, API startup, health and user endpoints, and 42 passing unit tests inside the API container.
 
-## Improvements with more time
+## Improvements with Time
 
 - Add API and PostgreSQL integration tests for routing, database constraints, and transactions.
 - Record actual settlements and include them in outstanding balance calculations.
